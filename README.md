@@ -7,10 +7,10 @@ Frontend en Next.js para gestionar mascotas, avisos y comentarios mediante la AP
 Configura `NEXT_PUBLIC_API_BASE_URL` con el origen HTTP(S) del backend, sin añadir `/api` al final. Por ejemplo:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://localhost:7197
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5183
 ```
 
-Puedes copiar `.env.example` a `.env.local` para desarrollo local. En Vercel, define la misma variable en las variables de entorno del proyecto para los entornos que vayas a publicar. El frontend usa `https://localhost:7197` como valor de desarrollo si la variable no está definida.
+Puedes copiar `.env.example` a `.env.local` para desarrollo local y arrancar la API con el perfil `http` de `PresentationLayer/Properties/launchSettings.json`. El perfil `https` escucha en `https://localhost:7197`; si lo usas, configura esa URL en `NEXT_PUBLIC_API_BASE_URL`. En Vercel, define la URL pública de la API como variable de entorno. El frontend usa `http://localhost:5183` si la variable no está definida.
 
 La API debe aceptar peticiones CORS desde el origen del frontend. Todas las rutas protegidas envían `Authorization: Bearer <accessToken>`; el token se mantiene en `sessionStorage` y se elimina al cerrar sesión o recibir un `401`.
 

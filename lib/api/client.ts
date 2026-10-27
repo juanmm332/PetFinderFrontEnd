@@ -4,7 +4,7 @@ import {
   SESSION_EXPIRED_EVENT,
 } from "@/lib/auth/token"
 
-export const DEFAULT_API_BASE_URL = "https://localhost:7197"
+export const DEFAULT_API_BASE_URL = "http://localhost:5183"
 export const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL
 ).replace(/\/+$/, "")
