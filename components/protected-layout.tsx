@@ -11,7 +11,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { session, isReady } = useSession()
 
   useEffect(() => {
-    if (isReady && !session) router.replace("/login")
+    if (isReady && !session) router.replace("/")
   }, [isReady, router, session])
 
   if (!isReady || !session) {

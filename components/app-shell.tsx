@@ -107,12 +107,13 @@ function AccountFooter() {
       <Button
         type="button"
         variant="ghost"
-        size="icon-sm"
+        size="sm"
         onClick={signOut}
         aria-label="Cerrar sesión"
         className="text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground"
       >
         <LogOut aria-hidden="true" />
+        <span className="sr-only lg:not-sr-only">Cerrar sesión</span>
       </Button>
     </div>
   )
@@ -150,7 +151,7 @@ function pageTitle(pathname: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
-  const { session } = useSession()
+  const { session, signOut } = useSession()
 
   return (
     <div className="min-h-screen bg-background lg:flex">
@@ -176,11 +177,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             <PawPrint aria-hidden="true" className="size-5 text-primary" />
             PetFinder
           </Link>
-          <Avatar className="size-8">
-            <AvatarFallback className="bg-secondary text-xs text-secondary-foreground">
-              {initials(session?.name)}
-            </AvatarFallback>
-          </Avatar>
+          <Button type="button" variant="ghost" size="sm" onClick={signOut} aria-label="Cerrar sesión">
+            <LogOut aria-hidden="true" />
+            <span>Cerrar sesión</span>
+          </Button>
         </header>
 
         <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 pt-6 sm:px-6 lg:px-10 lg:pt-9">
