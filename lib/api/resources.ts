@@ -11,58 +11,101 @@ export const API_PATHS = {
 } as const
 
 const entityIdSchema = z.union([z.number().int(), z.string().min(1)])
-const userSummarySchema = z.object({
-  idUsuario: entityIdSchema.optional(),
-  nombre: z.string().optional(),
-  correo: z.string().optional(),
-  telefono: z.string().nullish(),
-  rol: z.string().nullish(),
-})
 
-const animalSummarySchema = z.object({
-  idAnimal: entityIdSchema,
-  nombre: z.string(),
-  foto: z.string().nullable(),
-  comentario: z.string().nullish(),
-  idUsuario: entityIdSchema.optional(),
-  usuario: userSummarySchema.nullish(),
-})
+function withIdAlias(raw: unknown, targetKey: string, dateKey?: string): unknown {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const record = { ...(raw as Record<string, unknown>) }
+    if (record[targetKey] === undefined && record.id !== undefined) {
+      record[targetKey] = record.id
+    }
+    if (dateKey && record.fecha !== undefined) {
+      if (record.fechaCreacion === undefined) {
+        record.fechaCreacion = record.fecha
+      }
+      if (record.createdAt === undefined) {
+        record.createdAt = record.fecha
+      }
+    }
+    return record
+  }
+  return raw
+}
 
-const usuarioSchema = z.object({
-  idUsuario: entityIdSchema,
-  nombre: z.string(),
-  correo: z.string(),
-  telefono: z.string().nullable(),
-  rol: z.string().nullish(),
-})
+const userSummarySchema = z.preprocess(
+  (val) => withIdAlias(val, "idUsuario"),
+  z.object({
+    idUsuario: entityIdSchema.optional(),
+    nombre: z.string().optional(),
+    correo: z.string().optional(),
+    telefono: z.string().nullish(),
+    rol: z.string().nullish(),
+  }),
+)
+
+const animalSummarySchema = z.preprocess(
+  (val) => withIdAlias(val, "idAnimal"),
+  z.object({
+    idAnimal: entityIdSchema,
+    nombre: z.string(),
+    foto: z.string().nullish().transform((value) => value ?? null),
+    comentario: z.string().nullish(),
+    idUsuario: entityIdSchema.optional(),
+    usuario: userSummarySchema.nullish(),
+  }),
+)
+
+const usuarioSchema = z.preprocess(
+  (val) => withIdAlias(val, "idUsuario"),
+  z.object({
+    idUsuario: entityIdSchema,
+    nombre: z.string(),
+    correo: z.string(),
+    telefono: z.string().nullable(),
+    rol: z.string().nullish(),
+  }),
+)
 
 const animalSchema = animalSummarySchema
-const avisoSummarySchema = z.object({
-  idAviso: entityIdSchema,
-  idAnimal: entityIdSchema,
-  estado: z.enum(NOTICE_STATES),
-  ultimaUbicacionVista: z.string(),
-})
 
-const avisoSchema = avisoSummarySchema.extend({
-  comentario: z.string().nullish(),
-  idUsuario: entityIdSchema.optional(),
-  usuario: userSummarySchema.nullish(),
-  animal: animalSummarySchema.nullish(),
-  fechaCreacion: z.string().nullish(),
-  createdAt: z.string().nullish(),
-})
+const avisoSummarySchema = z.preprocess(
+  (val) => withIdAlias(val, "idAviso", "fecha"),
+  z.object({
+    idAviso: entityIdSchema,
+    idAnimal: entityIdSchema,
+    estado: z.enum(NOTICE_STATES),
+    ultimaUbicacionVista: z.string(),
+  }),
+)
 
-const comentarioSchema = z.object({
-  idComentario: entityIdSchema,
-  idAviso: entityIdSchema,
-  idUsuario: entityIdSchema.optional(),
-  texto: z.string(),
-  usuario: userSummarySchema.nullish(),
-  aviso: avisoSummarySchema.nullish(),
-  fechaCreacion: z.string().nullish(),
-  createdAt: z.string().nullish(),
-})
+const avisoSchema = z.preprocess(
+  (val) => withIdAlias(val, "idAviso", "fecha"),
+  z.object({
+    idAviso: entityIdSchema,
+    idAnimal: entityIdSchema,
+    estado: z.enum(NOTICE_STATES),
+    ultimaUbicacionVista: z.string(),
+    comentario: z.string().nullish(),
+    idUsuario: entityIdSchema.optional(),
+    usuario: userSummarySchema.nullish(),
+    animal: animalSummarySchema.nullish(),
+    fechaCreacion: z.string().nullish(),
+    createdAt: z.string().nullish(),
+  }),
+)
+
+const comentarioSchema = z.preprocess(
+  (val) => withIdAlias(val, "idComentario", "fecha"),
+  z.object({
+    idComentario: entityIdSchema,
+    idAviso: entityIdSchema,
+    idUsuario: entityIdSchema.optional(),
+    texto: z.string(),
+    usuario: userSummarySchema.nullish(),
+    aviso: avisoSummarySchema.nullish(),
+    fechaCreacion: z.string().nullish(),
+    createdAt: z.string().nullish(),
+  }),
+)
 
 const loginResponseSchema = z.object({
   accessToken: z.string().min(1),

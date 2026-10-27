@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useMemo, useState, type FormEvent } from "react"
 import { LoaderCircle, MapPin, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -31,6 +31,16 @@ export function NoticeForm({
   const [animalId, setAnimalId] = useState(initial ? String(initial.idAnimal) : "")
   const [status, setStatus] = useState<Aviso["estado"]>(initial?.estado ?? "Activo")
   const currentAnimalAvailable = initial && !animals.some((animal) => sameId(animal.idAnimal, initial.idAnimal))
+  const animalOptions = useMemo(() => {
+    const map: Record<string, string> = {}
+    if (currentAnimalAvailable && initial) {
+      map[String(initial.idAnimal)] = initial.animal?.nombre ?? `Mascota asociada #${initial.idAnimal}`
+    }
+    for (const animal of animals) {
+      map[String(animal.idAnimal)] = animal.nombre
+    }
+    return map
+  }, [animals, currentAnimalAvailable, initial])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -62,17 +72,30 @@ export function NoticeForm({
       <FieldGroup>
         <Field data-invalid={Boolean(errors.idAnimal)}>
           <FieldLabel htmlFor="aviso-animal">Mascota</FieldLabel>
-          <Select value={animalId || null} onValueChange={(value) => setAnimalId(value ?? "")}>
+          <Select
+            value={animalId || null}
+            onValueChange={(value) => setAnimalId(value ?? "")}
+            items={animalOptions}
+          >
             <SelectTrigger id="aviso-animal" aria-label="Mascota" className="w-full" aria-invalid={Boolean(errors.idAnimal)}>
-              <SelectValue placeholder="Elige una mascota" />
+              <SelectValue placeholder="Elige una mascota">
+                {(value) => {
+                  if (!value) return "Elige una mascota"
+                  return animalOptions[String(value)] ?? String(value)
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 {currentAnimalAvailable ? (
-                  <SelectItem value={String(initial.idAnimal)}>Mascota asociada #{initial.idAnimal}</SelectItem>
+                  <SelectItem value={String(initial.idAnimal)} label={initial.animal?.nombre ?? `Mascota asociada #${initial.idAnimal}`}>
+                    {initial.animal?.nombre ?? `Mascota asociada #${initial.idAnimal}`}
+                  </SelectItem>
                 ) : null}
                 {animals.map((animal) => (
-                  <SelectItem key={animal.idAnimal} value={String(animal.idAnimal)}>{animal.nombre}</SelectItem>
+                  <SelectItem key={animal.idAnimal} value={String(animal.idAnimal)} label={animal.nombre}>
+                    {animal.nombre}
+                  </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
