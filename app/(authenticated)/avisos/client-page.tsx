@@ -67,7 +67,11 @@ export default function AvisosPage() {
     setIsSaving(true)
     try {
       if (selectedNotice) {
-        await updateAviso(selectedNotice.idAviso, values)
+        await updateAviso(selectedNotice.idAviso, {
+          estado: values.estado,
+          ultimaUbicacionVista: values.ultimaUbicacionVista,
+          comentario: values.comentario,
+        })
         toast.success("El aviso se actualizó.")
       } else {
         await createAviso(values)

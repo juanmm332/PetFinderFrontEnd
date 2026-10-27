@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { PetPhoto } from "@/components/pet-photo"
 import type { AnimalSummary, Aviso } from "@/lib/types"
 import { getCreatedDate, noticeStateVariant } from "@/lib/utils/petfinder"
+import { cleanAddress } from "@/lib/utils/osm"
 
 export function NoticeCard({
   notice,
@@ -41,7 +42,7 @@ export function NoticeCard({
               </h2>
               <p className="mt-2 inline-flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
-                <span>{notice.ultimaUbicacionVista}</span>
+                <span>{cleanAddress(notice.ultimaUbicacionVista)}</span>
               </p>
               {notice.comentario?.trim() ? (
                 <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{notice.comentario}</p>

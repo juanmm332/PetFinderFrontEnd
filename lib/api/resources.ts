@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { ApiError, apiRequest } from "@/lib/api/client"
-import { NOTICE_STATES, type Animal, type AnimalRequest, type Aviso, type AvisoRequest, type Comentario, type ComentarioRequest, type CreateUsuarioRequest, type EntityId, type LoginRequest, type LoginResponse, type RestoreResource, type Usuario, type UpdateUsuarioRequest } from "@/lib/types"
+import { NOTICE_STATES, type Animal, type AnimalRequest, type Aviso, type AvisoRequest, type AvisoUpdateRequest, type Comentario, type ComentarioRequest, type CreateUsuarioRequest, type EntityId, type LoginRequest, type LoginResponse, type RestoreResource, type Usuario, type UpdateUsuarioRequest } from "@/lib/types"
 
 export const API_PATHS = {
   login: "/api/Auth/login",
@@ -206,7 +206,7 @@ export async function createAviso(body: AvisoRequest): Promise<void> {
   await apiRequest<unknown>(API_PATHS.notices, { method: "POST", body })
 }
 
-export async function updateAviso(id: EntityId, body: AvisoRequest): Promise<void> {
+export async function updateAviso(id: EntityId, body: AvisoUpdateRequest): Promise<void> {
   await apiRequest<unknown>(idPath(API_PATHS.notices, id), { method: "PUT", body })
 }
 

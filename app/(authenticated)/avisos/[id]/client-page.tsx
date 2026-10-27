@@ -22,6 +22,8 @@ import { useSession } from "@/lib/auth/session-context"
 import type { EntityId } from "@/lib/types"
 import type { AvisoWriteValues, ComentarioWriteValues } from "@/lib/validation"
 import { formatDate, isAnimalOwner, isNoticeOwner, noticeStateVariant, sameId } from "@/lib/utils/petfinder"
+import { LocationMap } from "@/components/map/location-map"
+import { cleanAddress } from "@/lib/utils/osm"
 
 function errorMessage(error: unknown) {
   return error instanceof ApiError ? error.message : "No se pudo completar la operación. Inténtalo de nuevo."
@@ -52,7 +54,11 @@ export default function AvisoDetailPage() {
     if (!notice) return
     setIsNoticeSaving(true)
     try {
-      await updateAviso(notice.idAviso, values)
+      await updateAviso(notice.idAviso, {
+        estado: values.estado,
+        ultimaUbicacionVista: values.ultimaUbicacionVista,
+        comentario: values.comentario,
+      })
       toast.success("El aviso se actualizó.")
       setEditNoticeOpen(false)
       await refreshResources([API_PATHS.notices])
@@ -142,10 +148,18 @@ export default function AvisoDetailPage() {
                 <span className="inline-flex items-center gap-2 text-xs text-muted-foreground"><CalendarDays aria-hidden="true" className="size-4" />{formatDate(notice.fechaCreacion ?? notice.createdAt)}</span>
               ) : null}
             </div>
-            <div>
+            <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">Última ubicación vista</p>
-              <p className="mt-3 flex items-start gap-2 text-base font-medium leading-relaxed"><MapPin aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />{notice.ultimaUbicacionVista}</p>
-              {notice.comentario?.trim() ? <p className="mt-5 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{notice.comentario}</p> : null}
+              <p className="flex items-start gap-2 text-base font-medium leading-relaxed">
+                <MapPin aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
+                {cleanAddress(notice.ultimaUbicacionVista)}
+              </p>
+              <LocationMap
+                location={notice.ultimaUbicacionVista}
+                title={`Última ubicación de ${animal?.nombre ?? "mascota"}`}
+                className="h-64 sm:h-72 w-full"
+              />
+              {notice.comentario?.trim() ? <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{notice.comentario}</p> : null}
             </div>
             <div className="mt-auto flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
               {animal?.nombre ? <Link href={`/mascotas/${animal.idAnimal}`} className="inline-flex items-center gap-2 font-medium text-primary hover:underline"><PawPrint aria-hidden="true" className="size-4" />Ver ficha de {animal.nombre}</Link> : <span>Mascota ID: {notice.idAnimal}</span>}

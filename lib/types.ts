@@ -91,6 +91,8 @@ export interface AvisoRequest {
   comentario: string
 }
 
+export type AvisoUpdateRequest = Omit<AvisoRequest, "idAnimal">
+
 export interface ComentarioRequest {
   idAviso: EntityId
   texto: string

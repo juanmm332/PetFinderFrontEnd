@@ -11,6 +11,7 @@ import type { Animal, Aviso } from "@/lib/types"
 import { NOTICE_STATES } from "@/lib/types"
 import { avisoWriteSchema, type AvisoWriteValues } from "@/lib/validation"
 import { sameId } from "@/lib/utils/petfinder"
+import { LocationPicker } from "@/components/map/location-picker"
 
 export function NoticeForm({
   animals,
@@ -76,6 +77,7 @@ export function NoticeForm({
             value={animalId || null}
             onValueChange={(value) => setAnimalId(value ?? "")}
             items={animalOptions}
+            disabled={Boolean(initial)}
           >
             <SelectTrigger id="aviso-animal" aria-label="Mascota" className="w-full" aria-invalid={Boolean(errors.idAnimal)}>
               <SelectValue placeholder="Elige una mascota">
@@ -100,7 +102,11 @@ export function NoticeForm({
               </SelectGroup>
             </SelectContent>
           </Select>
-          <FieldDescription>Solo puedes elegir mascotas propias; los administradores pueden asociar cualquier mascota activa.</FieldDescription>
+          <FieldDescription>
+            {initial
+              ? "La mascota asociada no se puede cambiar al editar un aviso."
+              : "Solo puedes elegir mascotas propias; los administradores pueden asociar cualquier mascota activa."}
+          </FieldDescription>
           {errors.idAnimal ? <FieldError>{errors.idAnimal}</FieldError> : null}
         </Field>
 
@@ -120,16 +126,15 @@ export function NoticeForm({
         </Field>
 
         <Field data-invalid={Boolean(errors.ultimaUbicacionVista)}>
-          <FieldLabel htmlFor="aviso-ubicacion">Última ubicación vista</FieldLabel>
-          <Input
-            id="aviso-ubicacion"
-            name="ubicacion"
-            placeholder="Barrio, parque o dirección aproximada"
-            defaultValue={initial?.ultimaUbicacionVista ?? ""}
-            required
-            aria-invalid={Boolean(errors.ultimaUbicacionVista)}
+          <FieldLabel>Última ubicación vista (OpenStreetMap)</FieldLabel>
+          <LocationPicker
+            initialValue={initial?.ultimaUbicacionVista ?? ""}
+            error={errors.ultimaUbicacionVista}
           />
-          <FieldDescription className="flex items-center gap-1.5"><MapPin aria-hidden="true" className="size-3.5" />Evita publicar datos privados o instrucciones para entrar a una vivienda.</FieldDescription>
+          <FieldDescription className="flex items-center gap-1.5">
+            <MapPin aria-hidden="true" className="size-3.5" />
+            Haz clic en el mapa para marcar el punto exacto o busca una dirección.
+          </FieldDescription>
           {errors.ultimaUbicacionVista ? <FieldError>{errors.ultimaUbicacionVista}</FieldError> : null}
         </Field>
 
